@@ -1,0 +1,75 @@
+/* main.css */
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* 全体の背景色やテキストの色などを指定 */
+body {
+    font-family: 'Open Sans', sans-serif;
+    background-color: #d4faff; /* 黄色 */
+    color: rgb(11, 18, 18); /* オレンジ */
+}
+
+#buttons {
+    text-align: center;
+    margin-top: 20px;
+}
+    
+/* ボタンのスタイル */
+button {
+    background-color: #ff6600; /* オレンジ */
+    color: #fff; /* 白 */
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    margin: 10px
+}
+
+/* ポップアップのスタイル */
+.popup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 20px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    width: 300px; /* 固定の幅を指定 */
+    /* height: 200px; 固定の高さを指定 */
+}
+
+canvas {
+    border: 2px solid black;
+    display: block;
+    margin: 0 auto;
+  }
+
+#velocitySlider {
+width: 80%;
+margin: 10px auto;
+}
+
+canvas {
+    border: 2px solid black;
+    display: block;
+    margin: 0 auto;
+  }
+
+  #velocitySlider {
+    width: 80%;
+    margin: 10px auto;
+  }
+
+  #buttons {
+    text-align: center;
+    margin-top: 20px;
+  }
+
+  button {
+    margin: 5px;
+  }
