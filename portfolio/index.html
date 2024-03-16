@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>自己紹介</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app">
+        <header>
+            <h1>ポートフォリオ</h1>
+        </header>
+        <main>
+            <section class="about">
+                <h2>自己紹介</h2>
+                <p>{{ name }}</p>
+                <p>{{ about }}</p>
+                <p>Email: {{ email }}</p>
+                <p>Atcoder: <a href="https://atcoder.jp/users/do_an" target="_blank">do_an</a></p>
+                <p>Qiita: <a href="https://qiita.com/do_an" target="_blank">do_an</a></p>
+                <p>Github: <a href="https://github.com/AndoRyoto" target="_blank">AndoRyoto</a></p>
+            </section>
+
+            <section class="contents">
+                <h2>代表作品</h2>
+                <p><a href="https://andoryoto.github.io/WebApplication/azarashi_game/" target="_blank">アザラシゲーム</a></p>
+                <p><a href="https://andoryoto.github.io/WebApplication/searchapp/" target="_blank">AtCoder検索ツール</a></p>
+                <!-- <p><a href="https://andoryoto.github.io/WebApplication/ブロック崩し/lesson01.html" target="_blank">ブロック崩し</a></p> -->
+                <p>細々したもの，完成度が低いもの，制作途中のものはQiita記事やGithubに入っています</p>
+
+            </section>
+            
+
+            
+            
+        </main>
+        <footer>
+            <p>&copy; {{ currentYear }} {{ name }}</p>
+        </footer>
+    </div>
+    <script src="https://unpkg.com/vue@3"></script>
+    <script src="app.js"></script>
+</body>
+</html>
