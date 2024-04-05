@@ -1,0 +1,48 @@
+/* style.css */
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.cpuModeMenu.disable {
+    display: none;
+}
+
+.board {
+    background-color: green;
+    display: grid;
+    grid-template-columns: repeat(var(--board-size), 1fr);
+    grid-template-rows: repeat(var(--board-size), 1fr);
+    width: 400px;
+    height: 400px;
+    margin: 20px auto;
+    border: 2px solid black;
+}
+
+.cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid black;
+
+}
+
+.cell.hoverable {
+    background-color: rgb(146, 255, 113); /* 置けるマスの背景色 */
+    cursor: pointer;
+}
+
+.disc {
+    width: 80%;
+    height: 80%;
+    border-radius: 50%;
+}
+
+.black {
+    background-color: black;
+}
+
+.white {
+    background-color: white;
+}

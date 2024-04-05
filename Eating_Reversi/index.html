@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>食べ食べオセロ</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <h1>食べ食べオセロ</h1>
+    <div>
+        <h2>ルール</h2>
+        <p>基本的には普通のオセロと同じ。ただし、各プレイヤーはゲーム中3回まで、駒を置く代わりにすでに置いてある駒を食べることができる。お互いにできることがなくなるか、片方の色がすべてなくなったらゲーム終了。</p>
+        <p>CPUと対戦するか、白黒両方手動操作かを選択可能。CPUはランダムな行動をとるのでめちゃくちゃ弱いです。これに負けられたら奇跡。</p>
+        <p>盤面のサイズは4x4,6x6,8x8から選択可能。</p>
+    </div>
+    <div>
+        <label for="playMode">プレイモード:</label>
+        <select id="playMode">
+            <option value="vsCPU">CPUと対戦</option>
+            <option value="manual">手動で両方操作</option>
+        </select>
+    </div>
+    <div class="cpuModeMenu">
+        <label for="cpuStrategy">CPUレベル:</label>
+        <select id="cpuStrategy">
+            <option value="random">1</option>
+            <!-- <option value="maxCapture">2</option>
+            <option value="minOptions">3</option> -->
+        </select>
+    </div>
+    <div class="cpuModeMenu">
+        <input type="radio" id="playerBlack" name="playerColor" value="black" checked>
+        <label for="playerBlack">プレイヤーが黒</label>
+
+        <input type="radio" id="playerWhite" name="playerColor" value="white">
+        <label for="playerWhite">プレイヤーが白</label>
+    </div>
+
+    <button id="startGameBtn">ゲーム開始</button>
+
+    <div>
+        <label for="boardSize">盤面のサイズ:</label>
+        <select id="boardSize">
+            <option value="4">4x4</option>
+            <option value="6">6x6</option>
+            <option value="8">8x8</option>
+        </select>
+    </div>
+    <div id="gameBoard" class="board"></div>
+    <div id="playerTurn" class="turn-display">現在のターン: <span id="currentPlayer">黒</span></div>
+    <div>
+        <div>黒の食べ回数：残り<span id="removeBlack">0</span>回</div>
+        <div>白の食べ回数：残り<span id="removeWhite">0</span>回</div>
+    </div>
+    <div id="gameResult" class="result-display"></div> <!-- ここに結果を表示します -->
+    <script src="js/main.js"></script>
+</body>
+</html>
