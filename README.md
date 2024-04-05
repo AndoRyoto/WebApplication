@@ -5,6 +5,7 @@
 
 ## Eating_Reversi
 X(旧Twitter)でバズったゲームの実装．
+元ポスト：https://twitter.com/puninpu/status/1749248265500135774
 通常オセロに加え相手のディスクを3回まで食べることができます．
 
 [ここ](https://andoryoto.github.io/WebApplication/Eating_Reversi/)をクリックするとプレイできます．
