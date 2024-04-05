@@ -3,6 +3,12 @@
 
 体系的な座学をしていないのでお粗末なコードですが，自分なりに頑張って動かしています．
 
+## Eating_Reversi
+X(旧Twitter)でバズったゲームの実装．
+通常オセロに加え相手のディスクを3回まで食べることができます．
+
+[ここ](https://andoryoto.github.io/WebApplication/Eating_Reversi/)をクリックするとプレイできます．
+
 ## azarashi_game
 スイカゲームをjavascriptで実装しました．
 
