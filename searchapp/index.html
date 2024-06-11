@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>AtCoder Phrase Search</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <script src="https://unpkg.com/vue-simple-suggest"></script>
+    <script src="https://unpkg.com/vuejs-paginate@2.1.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bulma-extensions@4.0.0/dist/js/bulma-extensions.min.js"></script>
+    <script src="https://kit.fontawesome.com/7dc3015a44.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://unpkg.com/vue-simple-suggest/dist/styles.css">
+    <link rel="stylesheet" href="https://unpkg.com/bulma@0.9.3/css/bulma.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma-extensions@4.0.0/dist/css/bulma-extensions.min.css">
+    <!-- <link rel="stylesheet" href="styles.css"> -->
+
+</head>
+
+
+<style>
+    .table-problem {
+      text-align: left;
+      position: relative;
+    }
+    
+    .difficulty-circle {
+      border: 2px solid;
+      border-radius: 15%;
+      width: 15px;
+      height: 15px;
+      display: inline-block;
+      cursor: pointer;
+      position: relative;
+      top: 3px; /* Adjust this value to move the circle mark up or down */
+    }
+    
+    .popup {
+      display: none;
+      position: absolute;
+      left: 25px;
+      bottom: 20px;
+      background-color: black;
+      color: white;
+      padding: 5px;
+      border-radius: 5px;
+      z-index: 1;
+    }
+    
+    .difficulty-circle:hover .popup {
+      display: block;
+    }
+    </style>
+
+
+<body>
+    <div id="app">
+        <nav class="navbar has-shadow is-fixed-top">
+            <div class="container">
+                <!-- ページ遷移ボタン -->
+                <div class="navbar-brand">
+                    <p class="navbar-item">
+                            <button class="pagination-button" @click="prevPage">＜</button> <!-- 前へ移動するボタン -->
+                            <input type="number" v-model.number="currentPage" @change="pageChanged" min="1" :max="getPageCount" >
+                            <button class="pagination-button" @click="nextPage">＞</button> <!-- 次へ移動するボタン -->
+                    </p>
+
+                    <p class="navbar-item">{{ parPage * (currentPage - 1) + 1 + '〜' + min(filteredItems.length,parPage * currentPage) + ' / ' + filteredItems.length }}</p>
+
+                </div>
+            </div>
+        </nav>
+        <section class="hero is-info mt-6">
+            <div class="hero-body">
+                <div class="container">
+                    <div class="card">
+                        <div class="card-content">
+                            <p>
+                            ABC200~357, ARC104~179までの問題と公式解説に出てくる語句を検索できるよ<br>
+                            </p><br>
+                            <div class="content">
+                                <div class="control has-icons-left has-icons-right">
+                                    <vue-simple-suggest v-model="searchWord" 
+                                        :filter-by-query="true" placeholder="検索">
+                                    </vue-simple-suggest>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card mt-4">
+                        <header class="card-header" @click="isOpenSearchOption = !isOpenSearchOption">
+                            <p class="card-header-title">
+                                Search Option
+                            </p>
+                            <button class="card-header-icon" aria-label="more options">
+                                <span class="icon">
+                                    <i class="fas"
+                                        :class="{ 'fa-angle-down': isOpenSearchOption, 'fa-angle-right': !isOpenSearchOption }"
+                                        aria-hidden="true">
+                                    </i>
+                                </span>
+                            </button>
+                        </header>
+
+                        <!-- Search Option -->
+                        <template v-if="isOpenSearchOption">
+                            <div class="card-content">
+                                <div class="content">                                   
+
+                                    <div class="field" v-for="col in csvColsObj.slice(1, 2)">
+
+                                        <label class="label checkbox">
+                                            Contest
+                                        </label>
+                                        <div class="field">
+                                            <div class="control">
+
+                                                <label class="checkbox">
+                                                    <input type="checkbox" v-model="col.selectedContestABC"> ABC
+                                                </label>
+                                                <label class="checkbox">
+                                                    <input type="checkbox" v-model="col.selectedContestARC"> ARC
+                                                </label>
+                                                
+                                            </div>
+                                        </div>
+
+                                        <label class="label checkbox">
+                                            Level
+                                        </label>
+                                        <div class="field">
+                                            <div class="control">
+                                                <label class="checkbox" v-for="level in LevelSet" :key="level">
+                                                    <input type="checkbox" v-model="col.selectedGrades" :value="level">
+                                                    {{ level }}
+                                                </label>
+                                            </div>
+                                        </div>
+
+                                        
+                                        <div class="field">
+                                            <label class="label">Difficulty Range</label>
+                                            <p>Difficultyが2桁くらいの問題は0になっています．
+                                            </p>
+                                            <div class="control">
+                                                <input type="number" class="input" v-model.number="col.difRangeMin" @input="updateRange(col, 'min')">
+                                                <input type="number" class="input" v-model.number="col.difRangeMax" @input="updateRange(col, 'max')">
+                                                <input type="range" min="-1" :max="DifMaxNum" v-model.number="col.difRangeMin" @input="updateRange(col, 'min')" step="1">
+                                                <input type="range" min="-1" :max="DifMaxNum+50" v-model.number="col.difRangeMax" @input="updateRange(col, 'max')" step="1">
+                                            </div>
+                                            <div>
+                                                最小値: {{ col.difRangeMin }}, 最大値: {{ col.difRangeMax }}　
+                                            
+
+                                            <label>
+                                                <input type="checkbox" v-model="col.isIncludeNA"> 測定不能（N/A）を含む
+                                            </label>
+                                            </div>
+                                        </div>
+
+                                        <div v-if="col.selectedContestABC" class="field">
+                                            <label class="label">ABC Range</label>
+                                            <div class="control">
+                                                <input type="number" class="input" v-model.number="col.abcNumRangeMin" :min="200" :max="349">
+                                                <input type="number" class="input" v-model.number="col.abcNumRangeMax" :min="200" :max="349">
+                                                <button class="button is-info" @click="resetValues(col,1)">リセット</button>
+                                            </div>
+                                        </div>
+
+                                        <div v-if="col.selectedContestARC" class="field">
+                                            <label class="label">ARC Range</label>
+                                            <div class="control">
+                                                <input type="number" class="input" v-model.number="col.arcNumRangeMin" min="104" max="150">
+                                                <input type="number" class="input" v-model.number="col.arcNumRangeMax" min="104" max="150">
+                                                <button class="button is-info" @click="resetValues(col,2)">リセット</button>
+                                            </div>
+                                        </div>
+                                        
+                                    </div>
+                                    
+                                    
+
+                                </div>
+                            </div>
+                            <footer class="card-footer">
+                                <a class="card-footer-item" @click="gridClass = 'is-3'">4 grid</a>
+                                <a class="card-footer-item" @click="gridClass = 'is-4'">3 grid</a>
+                                <a class="card-footer-item" @click="gridClass = 'is-6'">2 grid</a>
+                                <a class="card-footer-item" @click="gridClass = 'is-12'">no grid</a>
+                            </footer>
+                        </template>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="container">
+            <button @click="toggleReverse"><strong>Reverse</strong></button>
+            <div class="level-item">
+                <div class="columns is-multiline is-centered cards-container is-mobile" id="sectioncontainer">
+                    <div class="column" :class="[getItems.length > 2 ? gridClass : 'is-12' ]"
+                        v-for="rowItem in getItems">
+                        <article class="message is-black p-3">
+                            <div class="message-body">
+
+                                <div>
+                                    <span class="difficulty-circle" :style="getCircleStyle(rowItem[6])">
+                                        <div class="popup">Difficulty: {{rowItem[6]}}</div>
+                                    </span>
+                                    <a :href="`${rowItem[10]}`" target="_blank"  rel="noopener">
+                                        <strong>{{rowItem[0]}}{{rowItem[1]}}<br>{{rowItem[3]}}</strong>
+                                    </a>
+                                </div>
+
+                            </div>
+                        </article>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+</body>
+<script>
+    // 定数
+    const LevelSet = ['A','B','C','D','E','F','G']
+    const ContestSet = ['ABC','ARC']
+    const DifMinNum = 0;
+    const DifMaxNum = 5000;
+    const AbcMaxNum = 357; 
+    const AbcMinNum = 200;
+    const ArcMaxNum = 179;
+    const ArcMinNum = 104;
+
+    function sortCsvByColumn(csvResult, columnIndex) {
+    // ディープコピーを作成して元の配列を変更しないようにする
+            const sortedResult = csvResult.slice().sort((a, b) => {
+                const valA = a[columnIndex];
+                const valB = b[columnIndex];
+
+                if (valA < valB) {
+                return -1;
+                }
+                if (valA > valB) {
+                return 1;
+                }
+                return 0;
+            });
+
+    return sortedResult;
+    }
+
+
+
+    Vue.component('paginate', VuejsPaginate)
+    new Vue({
+        el: "#app",
+        data: {
+            isOpenMenu: false,
+            isOpenSearchOption: false,
+            gridClass: 'is-4',
+            parPage: 20,
+            currentPage: 1,
+            csvTitle: '',
+            csvCols: [],
+            csvColsObj: [],
+            csvData: [],
+            allCsvData: [],
+            searchWord: '',
+            directPageInput: '',
+            isReversed: false,
+        },
+        methods: {
+            OpenDialog(csvEv) {
+                const file = csvEv.target.files[0]
+                const reader = new FileReader()
+                this.csvTitle = file.name
+                reader.onload = (inputCsv) => {
+                    const res = inputCsv.target.result;
+                    const cleanedData = this.cleanData(res);
+                    this.ConvertCsv(cleanedData);
+                };
+                reader.readAsText(file, "Shift_JIS");
+            },
+
+            cleanData(data) {
+                return data
+            },
+
+            ConvertCsv(csvData) {
+                Papa.parse(csvData, {
+                    complete: (results) => {
+                        this.csvCols = results.data[0]
+                        this.csvData = results.data.slice(1)
+                        this.allCsvData = results.data.slice(1)
+                    },
+                })
+                this.setCsvColsObj()
+            },
+            RequestCsvPath(csvPath) {
+                new Promise((resolve, reject) => {
+                    const httpReq = new XMLHttpRequest(); // HTTPでファイルを読み込むためのXMLHttpRrequestオブジェクトを生成、サーバと非同期通信するためのAPI
+                    httpReq.open("get", csvPath, true); // アクセスするファイルを指定
+                    httpReq.overrideMimeType("text/plain; charset=Shift_JIS");
+                    httpReq.onload = () => {
+                        this.csvTitle = csvPath;
+                        // this.ConvertCsv(httpReq.responseText)
+                        const cleanedData = this.cleanData(httpReq.responseText);
+                        this.ConvertCsv(cleanedData);
+                        resolve()
+                    };
+                    httpReq.onerror = () => {
+                        reject(new Error(httpReq.statusText));
+                    };
+                    httpReq.send(null); // HTTPリクエストの発行
+                });
+            },
+            paginateClickCallback(pageNum) {
+                this.currentPage = Number(pageNum);
+            },
+            setCsvColsObj() {
+                this.csvColsObj = []
+                this.csvCols.forEach((col, index) => {
+
+                    const isDisplay = index === 0;
+                    this.csvColsObj.push({
+                        name: col,
+                        isSearch: true,
+                        isSearchNumber: false,
+                        isDisplay: isDisplay,
+                        searchWord: '',
+                        isSelectedGrade: false,
+                        selectedGrades: [],
+                        selectedGrades2: [false, false, false, false, false, false, false],
+                        selectedContest: [],
+                        selectedContestABC: false,
+                        selectedContestARC: false,
+                        difRangeMin: DifMinNum,
+                        difRangeMax: DifMaxNum,
+                        abcNumRangeMin: AbcMinNum,
+                        abcNumRangeMax: AbcMaxNum, 
+                        arcNumRangeMin: ArcMinNum,
+                        arcNumRangeMax: ArcMaxNum, 
+                        isIncludeNA: true // チェックボックス用プロパティ
+                    })
+                    
+                })
+            },
+
+            min(a, b) {
+                return Math.min(a, b);
+            },
+
+            // ページ設定
+            jumpToPage() {
+                const page = parseInt(this.directPageInput, 10);
+                if (!isNaN(page) && page > 0 && page <= this.getPageCount) {
+                    this.currentPage = page; // currentPageは、現在のページ番号を保持するデータプロパティです
+                    this.paginateClickCallback(page); // ページ移動のロジックを実行
+                } else {
+                    alert('無効なページ番号です。');
+                }
+                this.directPageInput = ''; // 入力フィールドをリセット
+            },
+            prevPage() {
+                if (this.currentPage > 1) this.currentPage--;
+            },
+            nextPage() {
+                if (this.currentPage < this.getPageCount) this.currentPage++;
+            },
+            pageChanged() {
+                // currentPageが変更されたときのロジック
+            },
+            toggleReverse() {
+                this.isReversed = !this.isReversed;
+            },
+
+
+            // difficultyの可動域設定
+            updateRange(col) {
+                if (col.difRangeMin > col.difRangeMax) {
+                    let tmp = (col.difRangeMax + col.difRangeMin) / 2;
+                    col.difRangeMin = Math.round(tmp);
+                    col.difRangeMax = Math.round(tmp);
+                }
+            },
+            adjustRange(value) {
+                if (value < 0) return 0;
+                if (value >= DifMaxNum) return DifMaxNum;
+                return 50 * Math.round(value / 50);  // 50の倍数に調整
+            },
+            updateRange(col, type) {
+                const adjustedValue = this.adjustRange(type === 'min' ? col.difRangeMin : col.difRangeMax);
+                if (type === 'min') {
+                    col.difRangeMin = adjustedValue;
+                } else {
+                    col.difRangeMax = adjustedValue;
+                }
+                if (col.difRangeMin > col.difRangeMax) {
+                    let tmp = 50 * Math.round((col.difRangeMax + col.difRangeMin) / 100);
+                    col.difRangeMin = tmp;
+                    col.difRangeMax = tmp;
+                }
+            },
+            resetValues(col,id) {
+                if (id===1) {
+                    col.abcNumRangeMin = AbcMinNum; // 初期最小値
+                    col.abcNumRangeMax = AbcMaxNum; // 初期最大値
+                }
+                else {
+                    col.arcNumRangeMin = ArcMinNum; // 初期最小値
+                    col.arcNumRangeMax = ArcMaxNum; // 初期最大値
+                }
+            },
+
+            getCircleStyle(difficulty) {
+                    if (difficulty === 'N/A') {
+                        return {
+                            borderColor: 'transparent',
+                            background: 'transparent'
+                        };
+                    }
+
+                    let color;
+                    let percentage = Math.min((difficulty % 400) / 400 * 100, 100);
+
+                    if (difficulty < 400) {
+                        color = 'rgb(128, 128, 128)'; // Grey
+                    } else if (difficulty < 800) {
+                        color = 'rgb(128, 64, 0)'; // Brown
+                    } else if (difficulty < 1200) {
+                        color = 'rgb(0, 128, 0)'; // Green
+                    } else if (difficulty < 1600) {
+                        color = 'rgb(0, 192, 192)'; // Light Blue
+                    } else if (difficulty <2000) {
+                        color = 'rgb(0, 192, 192)'; // Blue
+                    } else if (difficulty < 2400) {
+                        color = 'rgb(192, 192, 0)'; // Yellow
+                    } else if (difficulty < 2800) {
+                        color = 'rgb(255, 128, 0)'; // Orenge
+                    } else {
+                        color = 'rgb(255, 0, 0)'; // Red
+                    }
+
+                    return {
+                        borderColor: color,
+                        background: `linear-gradient(to top, ${color} ${percentage}%, rgba(0, 0, 0, 0) ${percentage}%)`
+                    };
+                }
+
+        },
+        mounted() {
+            this.RequestCsvPath('list.csv')
+
+            
+        },
+        computed: {
+            // ページに載せるカードを選ぶ
+            getItems() {
+                const current = this.currentPage * this.parPage;
+                const start = current - this.parPage;
+                const itemsToShow = this.isReversed ? this.filteredItems.slice().reverse() : this.filteredItems;
+                return itemsToShow.slice(start, current);
+            },
+            filteredItems() {
+
+                // &機能を実装
+                let csvResult = this.csvData; // 元のデータを代入
+                if (this.searchWord) {
+                    let searchWords = this.searchWord.replace(/\s+/g, '').toLowerCase().split('&'); // 検索語を分割してトリム
+                    
+                    let filteredResult = []; // 結果を格納するための配列
+
+                    // 各行に対するループ
+                    for (let i = 0; i < csvResult.length; i++) {
+                        let row = csvResult[i];
+                        let allWordsMatch = true; // すべての検索語がマッチしたかのフラグ
+
+                        // 各検索語に対するループ
+                        for (let j = 0; j < searchWords.length; j++) {
+                            let word = searchWords[j];
+                            let wordFound = false; // 現在の検索語がこの行で見つかったかのフラグ
+
+                            // 行内の各列に対するループ
+                            for (let k = 0; k < row.length; k++) {
+                                if (row[k].includes(word)) {
+                                    wordFound = true; // 検索語が見つかった
+                                    break; // この検索語は見つかったので内側のループを抜ける
+                                }
+                            }
+
+                            if (!wordFound) { // この検索語が行内で見つからなかった場合
+                                allWordsMatch = false; // すべての語がマッチする条件を満たさない
+                                break; // すべての語がマッチする条件が破れたので次の行へ
+                            }
+                        }
+
+                        if (allWordsMatch) { // この行がすべての検索語を含んでいる場合
+                            filteredResult.push(row); // 結果の配列に追加
+                        }
+                    }
+
+                    csvResult = filteredResult; // フィルタリングされた結果を最終的な結果とする
+                }
+
+
+                this.csvColsObj.forEach((colObj, index) => {
+
+                    // levelのフィルター設定
+                    if (colObj.selectedGrades.length > 0) {
+                        csvResult = csvResult.filter(csvRow => {
+                            return colObj.selectedGrades.includes(csvRow[2])
+                            })
+                    }
+                    if (colObj.selectedGrades.length === 0) {
+                        csvResult = csvResult.filter(csvRow => {
+                            return LevelSet.includes(csvRow[2])
+                            })
+                    }
+                    
+                    // ABC、ARCのフィルター設定
+                    if (!colObj.selectedContestABC && colObj.selectedContestARC) {
+                        csvResult = csvResult.filter(csvRow => {
+                            return csvRow[0] === 'ARC'
+                            })
+                    }
+                    else if (colObj.selectedContestABC && !colObj.selectedContestARC) {
+                        csvResult = csvResult.filter(csvRow => {
+                            return csvRow[0] === 'ABC'
+                            })
+                    }
+                    else {
+                        csvResult = csvResult.filter(csvRow => {
+                            return true
+                            })
+                    }
+                    // Difficultyのフィルター設定
+                    csvResult = csvResult.filter(csvRow => {
+                        const difficulty = csvRow[6];
+                        const isNA = difficulty === 'N/A';
+                        const inRange = colObj.difRangeMin <= difficulty && difficulty <= colObj.difRangeMax;
+
+                        // isIncludeNAがtrueなら、'N/A'を許容
+                        // console.log(isNA)
+                        return (colObj.isIncludeNA && isNA) || inRange;
+                    });
+
+
+                    // // Difficultyのフィルター設定
+                    // csvResult = csvResult.filter(csvRow => {
+                    //     return colObj.difRangeMin <= csvRow[6] && csvRow[6] <= colObj.difRangeMax
+                    //     })
+                    
+                    // ABC番号のフィルター設定
+                    csvResult = csvResult.filter(csvRow => {
+                        if (csvRow[0]=='ARC') {
+                            return true
+                        }
+                        return colObj.abcNumRangeMin <= csvRow[1] && csvRow[1] <= colObj.abcNumRangeMax
+                        })
+
+                    // ARC番号のフィルター設定
+                    csvResult = csvResult.filter(csvRow => {
+                        if (csvRow[0]=='ABC') {
+                            return true
+                        }
+                        return colObj.arcNumRangeMin <= csvRow[1] && csvRow[1] <= colObj.arcNumRangeMax
+                        })
+
+                })
+                return csvResult
+            },
+
+            getPageCount() {
+                let pageCount = Math.ceil(this.filteredItems.length / this.parPage)
+                if (this.currentPage > pageCount) {
+                    this.currentPage = 1
+                }
+                return pageCount
+            },
+        }
+    })
+
+</script>
+
+</html>
