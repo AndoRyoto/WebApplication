@@ -4,9 +4,10 @@ createApp({
     data() {
         return {
             name: '安東 稜人',
-            about: '絶賛就活中の修士1年生．エンジニア志望',
-            email: 'andou@agent.inf.kyushu-u.ac.jp',
+            about: '就活用ポートフォリオ -> Vue.js, GitBashの練習 & メモページ',
+            email: 'ryoto2001g@gmail.com',
             currentYear: new Date().getFullYear(),
+            workYear: new Date().getFullYear() - 2024,
         }
     },
     methods: {
