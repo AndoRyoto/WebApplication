@@ -3,19 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>自己紹介</title>
+    <title>初めてのWebページ</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div id="app">
         <header>
-            <h1>ポートフォリオ</h1>
+            <h1>Vue.jsの練習</h1>
         </header>
         <main>
             <section class="about">
                 <h2>自己紹介</h2>
                 <p>{{ name }}</p>
+                <p>社会人{{workYear}}年目</p>
                 <p>{{ about }}</p>
+            </section>
+
+            <section class="information">
+                <h2>インフォメーション</h2>
                 <p>Email: {{ email }}</p>
                 <p>Atcoder: <a href="https://atcoder.jp/users/do_an" target="_blank">do_an</a></p>
                 <p>Qiita: <a href="https://qiita.com/do_an" target="_blank">do_an</a></p>
@@ -23,15 +28,23 @@
             </section>
 
             <section class="contents">
-                <h2>代表作品</h2>
+                <h2>アプリ</h2>
                 <p><a href="https://andoryoto.github.io/WebApplication/azarashi_game/" target="_blank">アザラシゲーム</a></p>
                 <p><a href="https://andoryoto.github.io/WebApplication/searchapp/" target="_blank">AtCoder検索ツール</a></p>
-                <!-- <p><a href="https://andoryoto.github.io/WebApplication/ブロック崩し/lesson01.html" target="_blank">ブロック崩し</a></p> -->
-                <p>細々したもの，完成度が低いもの，制作途中のものはQiita記事やGithubに入っています</p>
-
             </section>
-            
 
+            <section class="contents">
+                <h2>作りたいアプリ</h2>
+                <p>簡易画像編集アプリ</p>
+                <p>ギタータブ譜取得ツール</p>
+                <p>漫画・イラストビューワ</p>
+                <p>スクレイビング練習ツール</p>
+                <p>適当なChatbot</p>
+                <p>マリオ</p>
+                <p>カメラ画像認識</p>
+                <p>ずとまよサムネ当て</p>
+                <p>etc</p>
+            </section>
             
             
         </main>
